@@ -96,7 +96,7 @@ def saveData(data):
 
 #main function to run script
 def main():
-    #getData(); #comment out after downloading data to avoid downloading again
+    getData(); #comment out after downloading data to avoid downloading again
     data = joinData() #joins the tables together
     data = cleanData(data) #cleans organization names
     saveData(data) #save data to csv file
