@@ -107,7 +107,7 @@ def joinData():
     df5 = df5.merge(df4, how='left', on='location_id')
     print(df5.describe())
     print(df5[:10])
-    return df4
+    return df5
 
 #save data as csv file to same directory as python file
 def saveData(data):
