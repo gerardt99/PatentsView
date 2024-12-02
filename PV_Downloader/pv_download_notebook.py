@@ -11,7 +11,11 @@ volume = "/Volumes/oce_dev/bronze/patentsview_files"
 #
 grants = "https://patentsview.org/download/data-download-tables"
 pgpubs = "https://patentsview.org/download/pg-download-tables"
-urls = [grants, pgpubs]
+text_table = ["https://patentsview.org/download/pg_brf_sum_text"]
+claims_table = ["https://patentsview.org/download/pg_claims"]
+desc_table = ["https://patentsview.org/download/pg_detail_desc_text"]
+draw_table = ["https://patentsview.org/download/pg_draw_desc_text"]
+urls = [grants, pgpubs, text_table, claims_table, desc_table, draw_table]
 
 #Get current month and year
 current_month = datetime.now().month

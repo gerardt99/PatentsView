@@ -75,7 +75,7 @@ class Agg_Compare:
             return(df)
 
         for file in os.listdir(self.new_dir):
-            print(file)
+            print("... analyzing ", file)
             old_df = 0
             new_fname = os.path.join(self.new_dir, file)
             new_df = read_file(new_fname)
@@ -103,11 +103,11 @@ class Agg_Compare:
             if len(bad_cols) > 0:
                 print("The following tables have different column names between releases:")
                 for table in bad_cols:
-                    print(table)
+                    print("\t", table)
             if len(bad_dtypes) > 0:
                 print("The following tables have different data types:")
                 for table in bad_dtypes:
-                    print(table)
+                    print("\t", table)
         return
 
     def run_all_tests(self):
