@@ -2,16 +2,16 @@ import pandas as pd
 import numpy as np
 
 class DataFrameComparator:
-    def __init__(self, df1, df2):
+    def __init__(self, new_df, old_df):
         """
-        Initialize the DataFrameComparator with two pandas DataFrames
+        Compares variables in PatentsView table between new and prior releases.
         
         Args:
-            df1 (pd.DataFrame): First DataFrame to compare
-            df2 (pd.DataFrame): Second DataFrame to compare
+            new_df (pd.DataFrame): Dataframe of the table in the new release
+            old_df (pd.DataFrame): Dataframe of the table in the prior release
         """
-        self.df1 = df1.copy()
-        self.df2 = df2.copy()
+        self.df1 = new_df.copy()
+        self.df2 = old_df.copy()
         
         # Validate column consistency
         self._validate_columns()
@@ -33,11 +33,11 @@ class DataFrameComparator:
             missing_in_df1 = cols2 - cols1
             missing_in_df2 = cols1 - cols2
             
-            error_msg = "DataFrames have different columns:\n"
+            error_msg = "Tables have different columns:\n"
             if missing_in_df1:
-                error_msg += f"Columns missing in first DataFrame: {missing_in_df1}\n"
+                error_msg += f"Columns missing in the new release DataFrame: {missing_in_df1}\n"
             if missing_in_df2:
-                error_msg += f"Columns missing in second DataFrame: {missing_in_df2}"
+                error_msg += f"Columns missing in the prior release DataFrame: {missing_in_df2}"
             
             raise ValueError(error_msg)
     
@@ -105,24 +105,3 @@ class DataFrameComparator:
         print(f"Metrics exported to {output_path}")
         return output_path
 
-# Example usage
-def main():
-    # Create sample DataFrames for demonstration
-    df1 = pd.DataFrame({
-        'Name': ['Alice', 'Bob', 'Charlie', 'David', np.nan],
-        'Age': [25, 30, 35, 40, 45],
-        'City': ['New York', 'London', 'Paris', 'Tokyo', 'Berlin']
-    })
-    
-    df2 = pd.DataFrame({
-        'Name': ['Alice', 'Bob', 'Charlie', 'Eve', np.nan],
-        'Age': [25, 30, 35, 50, 55],
-        'City': ['New York', 'London', 'Paris', 'Sydney', 'Rome']
-    })
-    
-    # Initialize and use the comparator
-    comparator = DataFrameComparator(df1, df2)
-    comparator.export_metrics_to_excel()
-
-if __name__ == "__main__":
-    main()
