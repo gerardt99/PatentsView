@@ -12,9 +12,8 @@ class DataFrameComparator:
         """
         self.df1 = new_df.copy()
         self.df2 = old_df.copy()
-        
-        # Validate column consistency
         self._validate_columns()
+        return
     
     def _validate_columns(self):
         """
@@ -33,13 +32,14 @@ class DataFrameComparator:
             missing_in_df1 = cols2 - cols1
             missing_in_df2 = cols1 - cols2
             
-            error_msg = "Tables have different columns:\n"
+            error_msg = "\t Tables have different columns:\n"
             if missing_in_df1:
                 error_msg += f"Columns missing in the new release DataFrame: {missing_in_df1}\n"
             if missing_in_df2:
                 error_msg += f"Columns missing in the prior release DataFrame: {missing_in_df2}"
-            
-            raise ValueError(error_msg)
+            print(error_msg)
+            #raise ValueError(error_msg)
+        return
     
     def _calculate_column_metrics(self):
         """
@@ -49,19 +49,26 @@ class DataFrameComparator:
             pd.DataFrame: A DataFrame with column metrics
         """
         metrics = []
-        
         for col in self.df1.columns:
+            if col not in self.df2.columns:
+                continue
             # Total records
             total_records_df1 = len(self.df1)
             total_records_df2 = len(self.df2)
+            if total_records_df1 < total_records_df2:
+                print("\t New release has fewer records than prior release.")
             
             # Unique values
             unique_df1 = self.df1[col].nunique()
             unique_df2 = self.df2[col].nunique()
-            
+            if unique_df1 < unique_df2:
+                print("\t New release has fewer unique records than prior release for column: ", col)
+
             # Missing values
             missing_df1 = self.df1[col].isna().sum()
             missing_df2 = self.df2[col].isna().sum()
+            if missing_df1 > 0:
+                print("\t ", col, " has the following number of missing records: ", missing_df1)
             
             # Values in both DataFrames
             common_values = len(set(self.df1[col].dropna()) & set(self.df2[col].dropna()))
@@ -69,25 +76,36 @@ class DataFrameComparator:
             # Data type
             dtype_df1 = str(self.df1[col].dtype)
             dtype_df2 = str(self.df2[col].dtype)
+
+            # Duplicate Records
+            dups_df1 = len(self.df1)-len(self.df1.drop_duplicates())
+            dups_df2 = len(self.df2)-len(self.df2.drop_duplicates())
+            if dups_df1 > 0:
+                print("\t ", col, " has the following number of dupicate rows: ", dups_df1)
             
             metrics.append({
                 'Column': col,
-                'DataFrame1_Total_Records': total_records_df1,
-                'DataFrame2_Total_Records': total_records_df2,
-                'DataFrame1_Unique_Values': unique_df1,
-                'DataFrame2_Unique_Values': unique_df2,
-                'DataFrame1_Missing_Values': missing_df1,
-                'DataFrame2_Missing_Values': missing_df2,
-                'Common_Values': common_values,
-                'DataFrame1_Data_Type': dtype_df1,
-                'DataFrame2_Data_Type': dtype_df2
+                'New_Num_Unique_Values': unique_df1,
+                'Prior_Num_Unique_Values': unique_df2,
+                'New_Num_Missing_Values': missing_df1,
+                'Prior_Num_Missing_Values': missing_df2,
+                'Num_Values_Common': common_values,
+                'New_Data_Type': dtype_df1,
+                'Prior_Data_Type': dtype_df2
             })
+        
+        metrics.append({'Column': 'New Release',
+                        'Num_Records': total_records_df1,
+                        'Num_Duplicated_Rows': dups_df1})
+        metrics.append({'Column': 'Prior Release',
+                        'Num_Records': total_records_df2,
+                        'Num_Duplicated_Rows': dups_df2})
         
         return pd.DataFrame(metrics)
     
-    def export_metrics_to_excel(self, output_path='dataframe_comparison_metrics.xlsx'):
+    def export_metrics(self, output_path='dataframe_comparison_metrics.csv'):
         """
-        Calculate and export column metrics to an Excel file
+        Calculate and export column metrics to a CSV file
         
         Args:
             output_path (str, optional): Path to save the Excel file. 
@@ -100,8 +118,8 @@ class DataFrameComparator:
         metrics_df = self._calculate_column_metrics()
         
         # Export to Excel
-        metrics_df.to_excel(output_path, index=False)
+        metrics_df.to_csv(output_path, index=False)
         
-        print(f"Metrics exported to {output_path}")
+        print(f"\t Metrics exported to {output_path}")
         return output_path
 
